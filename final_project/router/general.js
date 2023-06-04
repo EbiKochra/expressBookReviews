@@ -25,11 +25,12 @@ public_users.post("/register", (req, res) => {
   // Placeholder function to register a new user
   function registerUser(username, password) {
     // Assuming users is an object with usernames as keys and passwords as values
-    users[username] = password;
+    users.push({ username, password });
+    
+
   }
   
-
-
+  
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
   
