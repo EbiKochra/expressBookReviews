@@ -76,6 +76,36 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
       return res.status(200).json({ message: "Review added successfully" });
     }
   });
+
+
+  // Delete a book review
+  regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const username = req.user.username; // Assuming the username is stored in the req.user object after authentication
+
+    if (!books.hasOwnProperty(isbn)) {
+        return res.status(404).json({ message: "Book not found" });
+    }
+
+    if (!books[isbn].reviews || books[isbn].reviews.length === 0) {
+        return res.status(404).json({ message: "No reviews found for this book" });
+    }
+
+    const filteredReviews = books[isbn].reviews.filter((review) => review.username === username);
+
+    if (filteredReviews.length === 0) {
+        return res.status(404).json({ message: "No reviews found for the logged-in user" });
+    }
+
+    // Remove the filtered reviews
+    filteredReviews.forEach((review) => {
+        const reviewIndex = books[isbn].reviews.indexOf(review);
+        books[isbn].reviews.splice(reviewIndex, 1);
+    });
+
+    return res.status(200).json({ message: "Reviews deleted successfully" });
+});
+
   
 
 module.exports.authenticated = regd_users;
