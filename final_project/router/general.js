@@ -26,8 +26,6 @@ public_users.post("/register", (req, res) => {
   function registerUser(username, password) {
     // Assuming users is an object with usernames as keys and passwords as values
     users.push({ username, password });
-    
-
   }
   
   

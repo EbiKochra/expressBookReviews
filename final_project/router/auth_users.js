@@ -15,8 +15,6 @@ const authenticateUser = (username, password) => {
     return users.some((user) => user.username === username && user.password === password);
   };
 
-
-
 // Only registered users can login
 regd_users.post("/login", (req, res) => {
     const { username, password } = req.body;
@@ -28,8 +26,16 @@ regd_users.post("/login", (req, res) => {
   
     // Check if the username and password match
     if (authenticateUser(username, password)) {
+
+      // Set the username in req.user
+      req.user = { username: username };
       // Generate a JWT token
       const token = jwt.sign({ username }, "access");
+
+      // Set the authorization information in the session
+      req.session.authorization = {
+        accessToken: token
+      };
       return res.status(200).json({ message: "Login successful" , token});
     }
   
@@ -40,7 +46,7 @@ regd_users.post("/login", (req, res) => {
 regd_users.put("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
     const review = req.query.review;
-    const username = req.user.username;
+    const username = req.user.username; // Assuming the username is stored in the req.user object after authentication
   
     if (!review) {
       return res.status(400).json({ message: "Review content is required" });
@@ -70,32 +76,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
       return res.status(200).json({ message: "Review added successfully" });
     }
   });
-// Add a book review
-regd_users.put("/auth/review/:isbn", (req, res) => {
-    const isbn = req.params.isbn;
-    const review = req.body.review;
-    const username = req.user.username; // Assuming the username is stored in the req.user object after authentication
   
-    // Check if the book exists in the database
-    if (books.hasOwnProperty(isbn)) {
-      const book = books[isbn];
-  
-      // Check if the user already has a review for the book
-      if (book.reviews.hasOwnProperty(username)) {
-        // Modify the existing review
-        book.reviews[username] = review;
-        return res.status(200).json({ message: "Review modified successfully" });
-      } else {
-        // Add a new review for the user
-        book.reviews[username] = review;
-        return res.status(200).json({ message: "Review added successfully" });
-      }
-    } else {
-      return res.status(404).json({ message: "Book not found" });
-    }
-  });
-  
-    
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
